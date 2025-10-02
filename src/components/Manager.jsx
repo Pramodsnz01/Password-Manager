@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 
 const Manager = () => {
   const ref = useRef()
+  const passwordRef = useRef()
   const [form, setform] = useState({ site: "", username: "", password: "" })
   const [passwordArray, setpasswordArray] = useState([])
 
@@ -14,10 +15,13 @@ const Manager = () => {
 
 
   const showPassword = () => {
+    passwordRef.current.type = "text"
     if (ref.current.src.includes("icons/hide.png")) {
       ref.current.src = "icons/view.png"
+      passwordRef.current.type = "password"
     } else {
       ref.current.src = "icons/hide.png"
+      passwordRef.current.type = "text"
     }
   }
 
@@ -48,7 +52,7 @@ const Manager = () => {
           <div className="flex w-full justify-between gap-8">
             <input value={form.username} onChange={handleChange} placeholder='Enter Username' className='rounded-full bg-white border border-green-500 w-full p-4 py-1' type="text" name='username' />
             <div className="relative">
-              <input value={form.password} onChange={handleChange} placeholder='Enter Password' className='rounded-full bg-white border border-green-500 w-full p-4 py-1' type="text" name='password' />
+              <input ref={passwordRef} value={form.password} onChange={handleChange} placeholder='Enter Password' className='rounded-full bg-white border border-green-500 w-full p-4 py-1' type="password" name='password' />
               <span className='absolute right-[3px] top-[4px] cursor-pointer' onClick={showPassword}><img ref={ref} className='p-1' width={26} src="icons/view.png" alt="show" /></span>
             </div>
           </div>
