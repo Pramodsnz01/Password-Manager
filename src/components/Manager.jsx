@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+import { ToastContainer, toast } from 'react-toastify';
 
 const Manager = () => {
   const ref = useRef()
@@ -13,6 +14,20 @@ const Manager = () => {
     }
   }, [])
 
+  const copyText = (text) => {
+    toast.success('Copied to clipboard!', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      // transition: Bounce,
+    });
+    navigator.clipboard.writeText(text)
+  }
 
   const showPassword = () => {
     passwordRef.current.type = "text"
@@ -39,6 +54,19 @@ const Manager = () => {
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      // transition={Bounce}
+      />
       <div className="absolute inset-0 -z-10 h-full w-full bg-green-100 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"><div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-green-400 opacity-20 blur-[100px]"></div></div>
 
       <div className="mycontainer ">
@@ -76,9 +104,42 @@ const Manager = () => {
             <tbody className='bg-green-200'>
               {passwordArray.map((item, index) => {
                 return <tr key={index}>
-                  <td className='py-2 border border-white text-center w-32'><a href={item.site} target='_blank'>{item.site}</a></td>
-                  <td className='py-2 border border-white text-center w-32'>{item.username}</td>
-                  <td className='py-2 border border-white text-center w-32'>{item.password}</td>
+                  <td className='py-2 border border-white text-center'>
+                    <div className="flex items-center justify-center">
+                      <a href={item.site} target='_blank'>{item.site}</a>
+                      <div className="size-7 cursor-pointer lordiconcopy" onClick={() => { copyText(item.site) }}>
+                        <lord-icon
+                          style={{ "width": "25px", "height": "25px", "paddingTop": "3px", "paddingLeft": "3px" }}
+                          src="https://cdn.lordicon.com/iykgtsbt.json"
+                          trigger="hover" >
+                        </lord-icon>
+                      </div>
+                    </div>
+                  </td>
+                  <td className='py-2 border border-white text-center  '>
+                    <div className="flex items-center justify-center">
+                      <span>{item.username}</span>
+                      <div className="size-7 cursor-pointer lordiconcopy" onClick={() => { copyText(item.username) }}>
+                        <lord-icon
+                          style={{ "width": "25px", "height": "25px", "paddingTop": "3px", "paddingLeft": "3px" }}
+                          src="https://cdn.lordicon.com/iykgtsbt.json"
+                          trigger="hover" >
+                        </lord-icon>
+                      </div>
+                    </div>
+                  </td>
+                  <td className='py-2 border border-white text-center  '>
+                    <div className="flex items-center justify-center">
+                      <span>{item.password}</span>
+                      <div className="size-7 cursor-pointer lordiconcopy" onClick={() => { copyText(item.password) }}>
+                        <lord-icon
+                          style={{ "width": "25px", "height": "25px", "paddingTop": "3px", "paddingLeft": "3px" }}
+                          src="https://cdn.lordicon.com/iykgtsbt.json"
+                          trigger="hover" >
+                        </lord-icon>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
               })}
             </tbody>
