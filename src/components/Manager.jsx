@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 const Manager = () => {
   const ref = useRef()
@@ -41,11 +42,51 @@ const Manager = () => {
   }
 
   const savePassword = () => {
-    setpasswordArray([...passwordArray, form])
-    localStorage.setItem("passwords", JSON.stringify([...passwordArray, form]))
-    console.log(passwordArray);
+    const site = form.site.trim()
+    const username = form.username.trim()
+    const password = form.password.trim()
 
+    if (!site || !username || !password) {
+      toast.error('Please fill out all fields before saving.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      })
+      return
+    }
+
+    const newEntry = { site, username, password, id: uuidv4() }
+    const updatedPasswords = [...passwordArray, newEntry]
+    setpasswordArray(updatedPasswords)
+    localStorage.setItem("passwords", JSON.stringify(updatedPasswords))
+    setform({ site: "", username: "", password: "" })
+    toast.success('Password saved successfully!', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "light",
+    })
   }
+  const editPassword = (id) => {
+    console.log("editing pss with id", id);
+    setform(passwordArray.filter(i => i.id === id)[0])
+    setpasswordArray(passwordArray.filter(item => item.id !== id)) 
+  }
+  const deletePassword = (id) => {
+    let c = confirm("Do you really want to delete this password?")
+    if (c) {
+      setpasswordArray(passwordArray.filter(item => item.id !== id))
+      localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id !== id)))
+    } 
+  }
+
   const handleChange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value })
   }
@@ -88,7 +129,7 @@ const Manager = () => {
             <lord-icon
               src="https://cdn.lordicon.com/gzqofmcx.json"
               trigger="hover" >
-            </lord-icon>Add Password</button>
+            </lord-icon>Save</button>
         </div>
         <div className="passwords">
           <h2 className='font-bold text-2xl py-3'>Your Passwords</h2>
@@ -99,6 +140,7 @@ const Manager = () => {
                 <th className='py-2'>Site</th>
                 <th className='py-2'>Username</th>
                 <th className='py-2'>Password</th>
+                <th className='py-2'>Actions</th>
               </tr>
             </thead>
             <tbody className='bg-green-200'>
@@ -139,6 +181,22 @@ const Manager = () => {
                         </lord-icon>
                       </div>
                     </div>
+                  </td>
+                  <td className='py-2 border border-white text-center  '>
+                    <span className='cursor-pointer mx-1.5' onClick={() => { editPassword(item.id) }}>
+                      <lord-icon
+                        src="https://cdn.lordicon.com/gwlusjdu.json"
+                        style={{ "width": "25px", "height": "25px", "paddingTop": "4px", "paddingLeft": "3px" }}
+                        trigger="hover" >
+                      </lord-icon>
+                    </span>
+                    <span className='cursor-pointer mx-1.5' onClick={() => { deletePassword(item.id) }}>
+                      <lord-icon
+                        src="https://cdn.lordicon.com/skkahier.json"
+                        style={{ "width": "25px", "height": "25px", "paddingTop": "3px", "paddingLeft": "3px" }}
+                        trigger="hover" >
+                      </lord-icon>
+                    </span>
                   </td>
                 </tr>
               })}
