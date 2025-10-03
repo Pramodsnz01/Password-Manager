@@ -84,6 +84,17 @@ const Manager = () => {
     if (c) {
       setpasswordArray(passwordArray.filter(item => item.id !== id))
       localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id !== id)))
+      toast.success('Password deleted successfully!', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      // transition: Bounce,
+    });
     } 
   }
 
