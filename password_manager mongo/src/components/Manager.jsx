@@ -8,11 +8,17 @@ const Manager = () => {
   const [form, setform] = useState({ site: "", username: "", password: "" })
   const [passwordArray, setpasswordArray] = useState([])
 
+  const getPasswords = async () => {
+
+    let req = await fetch("http://localhost:3000/")
+    let passwords = await req.json()
+    console.log(passwords);
+    setpasswordArray(passwords)
+  }
+
   useEffect(() => {
-    let passwords = localStorage.getItem("passwords")
-    if (passwords) {
-      setpasswordArray(JSON.parse(passwords))
-    }
+    getPasswords()
+
   }, [])
 
   const copyText = (text) => {
@@ -31,17 +37,16 @@ const Manager = () => {
   }
 
   const showPassword = () => {
-    passwordRef.current.type = "text"
-    if (ref.current.src.includes("icons/hide.png")) {
-      ref.current.src = "icons/view.png"
-      passwordRef.current.type = "password"
-    } else {
+    if (ref.current.src.includes("icons/view.png")) {
       ref.current.src = "icons/hide.png"
       passwordRef.current.type = "text"
+    } else {
+      ref.current.src = "icons/view.png"
+      passwordRef.current.type = "password"
     }
   }
 
-  const savePassword = () => {
+  const savePassword = async () => {
     const site = form.site.trim()
     const username = form.username.trim()
     const password = form.password.trim()
@@ -59,43 +64,102 @@ const Manager = () => {
       return
     }
 
-    const newEntry = { site, username, password, id: uuidv4() }
-    const updatedPasswords = [...passwordArray, newEntry]
-    setpasswordArray(updatedPasswords)
-    localStorage.setItem("passwords", JSON.stringify(updatedPasswords))
-    setform({ site: "", username: "", password: "" })
-    toast.success('Password saved successfully!', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "light",
-    })
+    try {
+      // If editing existing password (form.id exists), delete the old one first
+      if (form.id) {
+        await fetch("http://localhost:3000/", { 
+          method: "DELETE", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ id: form.id }) 
+        })
+      }
+
+      // Create new entry with consistent ID
+      const newEntry = { site, username, password, id: form.id || uuidv4() }
+      
+      // Save to database
+      await fetch("http://localhost:3000/", { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(newEntry) 
+      })
+      
+      // Update local state
+      if (form.id) {
+        // Editing existing password - replace it in the array
+        setpasswordArray(passwordArray.map(item => item.id === form.id ? newEntry : item))
+      } else {
+        // Adding new password - add to array
+        setpasswordArray([...passwordArray, newEntry])
+      }
+      
+      setform({ site: "", username: "", password: "" })
+      toast.success('Password saved successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      })
+    } catch (error) {
+      console.error('Error saving password:', error)
+      toast.error('Failed to save password. Please try again.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      })
+    }
   }
   const editPassword = (id) => {
-    console.log("editing pss with id", id);
-    setform(passwordArray.filter(i => i.id === id)[0])
-    setpasswordArray(passwordArray.filter(item => item.id !== id)) 
+    console.log("editing password with id", id);
+    const passwordToEdit = passwordArray.find(item => item.id === id)
+    if (passwordToEdit) {
+      setform({...passwordToEdit, id: id})
+    }
   }
-  const deletePassword = (id) => {
+  const deletePassword = async (id) => {
     let c = confirm("Do you really want to delete this password?")
     if (c) {
-      setpasswordArray(passwordArray.filter(item => item.id !== id))
-      localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id !== id)))
-      toast.success('Password deleted successfully!', {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      // transition: Bounce,
-    });
-    } 
+      try {
+        // Delete from database first
+        await fetch("http://localhost:3000/", { 
+          method: "DELETE", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ id }) 
+        })
+        
+        // Update local state after successful deletion
+        setpasswordArray(passwordArray.filter(item => item.id !== id))
+        
+        toast.success('Password deleted successfully!', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      } catch (error) {
+        console.error('Error deleting password:', error)
+        toast.error('Failed to delete password. Please try again.', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+        })
+      }
+    }
   }
 
   const handleChange = (e) => {
@@ -128,7 +192,7 @@ const Manager = () => {
           <span className='text-green-700'>OP/&gt;</span></h1>
         <p className='text-green-900 text-lg text-center'>Your own Password Manager</p>
         <div className="text-black flex flex-col p-4 gap-8 items-center">
-          <input value={form.site} onChange={handleChange} placeholder='Enter Website URL' className='rounded-full bg-white border border-green-500 w-full p-4 py-1' type="text" name='site' id='site'/>
+          <input value={form.site} onChange={handleChange} placeholder='Enter Website URL' className='rounded-full bg-white border border-green-500 w-full p-4 py-1' type="text" name='site' id='site' />
           <div className="flex flex-col md:flex-row w-full justify-between gap-8">
             <input value={form.username} onChange={handleChange} placeholder='Enter Username' className='rounded-full bg-white border border-green-500 w-full p-4 py-1' type="text" name='username' id='username' />
             <div className="relative">
@@ -183,7 +247,7 @@ const Manager = () => {
                   </td>
                   <td className='py-2 border border-white text-center  '>
                     <div className="flex items-center justify-center">
-                      <span>{item.password}</span>
+                      <span>{"*".repeat(item.password.length)}</span>
                       <div className="size-7 cursor-pointer lordiconcopy" onClick={() => { copyText(item.password) }}>
                         <lord-icon
                           style={{ "width": "25px", "height": "25px", "paddingTop": "3px", "paddingLeft": "3px" }}

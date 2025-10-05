@@ -9,17 +9,13 @@ const Navbar = () => {
                     <span className='text-green-700'>&lt;</span>
                     Pass
                     <span className='text-green-700'>OP/&gt;</span>
-                </div>
-                {/* <ul>
-                    <li className='flex gap-4'>
-                        <a className='hover:font-bold' href="/">Home</a>
-                        <a className='hover:font-bold' href="#">About</a>
-                        <a className='hover:font-bold' href="#">Contact</a>
-                    </li>
-                </ul> */}
-                <button className='text-white bg-green-800 flex rounded-full my-5 justify-between items-center cursor-pointer ring-white ring-1'>
+                </div> 
+                <button 
+                    onClick={() => window.open('https://github.com/Pramodsnz01/Password-Manager/tree/main/password_manager%20mongo', '_blank')}
+                    className='text-white bg-green-800 flex rounded-full my-5 justify-between items-center cursor-pointer ring-white ring-1 hover:bg-green-700 transition-colors'
+                >
                     <img className='invert p-1.5 w-10' src="/icons/github.svg" alt="github logo" />
-                    <span className='font-bold px-2'>GitHub</span>
+                    <span className='font-bold px-2'>View Source</span>
                 </button>
             </div>
         </nav>

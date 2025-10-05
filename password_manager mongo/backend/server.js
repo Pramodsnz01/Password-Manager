@@ -2,6 +2,7 @@ const express = require('express')
 const dotenv = require('dotenv')
 const { MongoClient } = require('mongodb');
 const bodyparser = require('body-parser')
+const cors = require('cors')
 
 dotenv.config()
 
@@ -13,7 +14,9 @@ const client = new MongoClient(url);
 const dbName = 'password-manager';
 const app = express()
 const port = 3000
+
 app.use(bodyparser.json())
+app.use(cors())
 
 client.connect();
 console.log('Connected successfully to server');
