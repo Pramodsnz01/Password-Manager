@@ -9,14 +9,7 @@ const Navbar = () => {
                     <span className='text-green-700'>&lt;</span>
                     Pass
                     <span className='text-green-700'>OP/&gt;</span>
-                </div>
-                {/* <ul>
-                    <li className='flex gap-4'>
-                        <a className='hover:font-bold' href="/">Home</a>
-                        <a className='hover:font-bold' href="#">About</a>
-                        <a className='hover:font-bold' href="#">Contact</a>
-                    </li>
-                </ul> */}
+                </div> 
                 <button 
                     onClick={() => window.open('https://github.com/Pramodsnz01/Password-Manager', '_blank')}
                     className='text-white bg-green-800 flex rounded-full my-5 justify-between items-center cursor-pointer ring-white ring-1 hover:bg-green-700 transition-colors'
